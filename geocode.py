@@ -1,8 +1,15 @@
 import requests
 import math
 import time
+import os
+from dotenv import load_dotenv, find_dotenv
 
-SECRET_API_KEY = 'AIzaSyApe4spP6T-B8z-RgNrs6SuNDDNdMdvLRQ='
+# Load the .env file
+load_dotenv(find_dotenv())
+
+# Load the api token
+SECRET_API_KEY = os.environ.get('SECRET_API_KEY')
+print(SECRET_API_KEY)
 
 origin = str(input('Digite o local de origem:'))
 destination = str(input('Digite o local de destino:'))
@@ -47,8 +54,8 @@ def distance_between_coordinates(lat1, lon1, lat2, lon2):
 lat1, lon1 = get_lat_lng(origin)
 
 # Await
-time.sleep(3)
 print('calculando..')
+time.sleep(3)
 
 # Get the latitude and longitude based on the destination
 lat2, lon2 = get_lat_lng(destination)
