@@ -54,5 +54,5 @@ print('calculando..')
 lat2, lon2 = get_lat_lng(destination)
 
 # Get the distance between origin and destination
-distance = distance_between_coordinates(lat1, lon1, lat2, lon2)
+distance = distance_between_coordinates(lat1, lon1, lat2, lon2) * 1.2 # coeficiente de segurança
 print(f'Distancia total: {distance} Km')
