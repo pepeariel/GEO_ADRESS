@@ -65,9 +65,7 @@ def find_shortest_route(lat1, lon1, lat2, lon2):
 
         data = response.json()
         # Extract the total distance from the response data
-        total_distance = data['routes'][0]['legs'][0]['distance']['text']
-
-        
+        total_distance = data['routes'][0]['legs'][0]['distance']['text']        
     else:
         print('Error: Unable to retrieve data from the API')
     return total_distance
@@ -85,7 +83,7 @@ lat2, lon2 = get_lat_lng(destination)
 
 # Get the distance between origin and destination
 distance = distance_between_coordinates(lat1, lon1, lat2, lon2) * 1.2 # coeficiente de segurança
-print(f'Distancia total: {distance} Km')
+print(f'Distancia reta: {round(distance)} Km')
 
 distance_shortest_route = find_shortest_route(lat1, lon1, lat2, lon2)
-print(print('Total distance:', distance_shortest_route))
+print(print('Distancia menor caminho:', distance_shortest_route))
