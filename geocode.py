@@ -9,7 +9,6 @@ load_dotenv(find_dotenv())
 
 # Load the api token
 SECRET_API_KEY = os.environ.get('SECRET_API_KEY')
-print(SECRET_API_KEY)
 
 origin = str(input('Digite o local de origem:'))
 destination = str(input('Digite o local de destino:'))
@@ -86,4 +85,4 @@ distance = distance_between_coordinates(lat1, lon1, lat2, lon2) * 1.2 # coeficie
 print(f'Distancia reta: {round(distance)} Km')
 
 distance_shortest_route = find_shortest_route(lat1, lon1, lat2, lon2)
-print(print('Distancia menor caminho:', distance_shortest_route))
+print('Distancia menor caminho:', distance_shortest_route)
