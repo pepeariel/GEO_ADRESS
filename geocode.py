@@ -3,15 +3,19 @@ import math
 import time
 import os
 from dotenv import load_dotenv, find_dotenv
+import pandas as pd
+from databricks_con import query, CreateDataLakeCon
+import numpy as np
 
 # Load the .env file
 load_dotenv(find_dotenv())
 
+# Read the databrick table
+df_rotas = CreateDataLakeCon(query)
+print(df_rotas.head(5))
+
 # Load the api token
 SECRET_API_KEY = os.environ.get('SECRET_API_KEY')
-
-origin = str(input('Digite o local de origem:'))
-destination = str(input('Digite o local de destino:'))
 
 # Given an adress return the latitude and longitude of the adress
 def get_lat_lng(address):
@@ -70,19 +74,63 @@ def find_shortest_route(lat1, lon1, lat2, lon2):
     return total_distance
 
 
-# Get the latitude and longitude based on the origin
-lat1, lon1 = get_lat_lng(origin)
+# Get the latitude and longitude based on the origin and destination
+latitude_origin_list = []
+longitude_origin_list = []
+latitude_destination_list = []
+longitude_destination_list = []
+origin_dic = {}
+destination_dic = {}
 
-# Await
-print('calculando..')
-time.sleep(3)
+# Create a list with lat and long from the origin location
+for origin in df_rotas["Local_coleta"]:
+    try:
+        lat1, lon1 = get_lat_lng(str(origin))
+        latitude_origin_list.append(lat1)
+        longitude_origin_list.append(lon1)
+    except:
+        latitude_origin_list.append(np.nan)
+        longitude_origin_list.append(np.nan)
+        continue
 
-# Get the latitude and longitude based on the destination
-lat2, lon2 = get_lat_lng(destination)
+# Create a list with lat and long from the destination location
+for destination in df_rotas["Local_entrega"]:
+    try:
+        lat2, lon2 = get_lat_lng(str(destination))
+        latitude_destination_list.append(lat2)
+        longitude_destination_list.append(lon2)
+    except:
+        latitude_destination_list.append(np.nan)
+        longitude_destination_list.append(np.nan)
+        continue
+
+# Save all the latitudes and longitudes on 2 dictionaries
+origin_dic['latitude'] = latitude_origin_list
+origin_dic['longitude'] = longitude_origin_list
+destination_dic['latitude'] = latitude_destination_list
+destination_dic['longitude'] = longitude_destination_list
+
+# Get the shortest route based on the coordinates dictionaries
+distance_shortest_route_list = []
+for lat1, lon1, lat2, lon2 in zip(origin_dic['latitude'], origin_dic['longitude'], destination_dic['latitude'], destination_dic['longitude']):
+    try:
+        distance_shortest_route = find_shortest_route(lat1, lon1, lat2, lon2)
+        print('Distancia menor caminho:', distance_shortest_route)
+        distance_shortest_route_list.append(distance_shortest_route)
+    except:
+        distance_shortest_route_list.append('Não foi possivel calcular a rota')
+        continue
+    
+# Save it all to a pandas dataframe
+df_rotas['Lat_origem'] = origin_dic['latitude']
+df_rotas['Lon_origem'] = origin_dic['longitude']
+df_rotas['Lat_destino'] = destination_dic['latitude']
+df_rotas['Lon_destino'] = destination_dic['longitude']
+df_rotas['Distancia'] = distance_shortest_route_list
+
+print(df_rotas.head())
+#df_rotas.to_csv('Transporte_rotas_unicas_com_distancias.csv', sep=";")
 
 # Get the distance between origin and destination
-distance = distance_between_coordinates(lat1, lon1, lat2, lon2) * 1.2 # coeficiente de segurança
-print(f'Distancia reta: {round(distance)} Km')
-
-distance_shortest_route = find_shortest_route(lat1, lon1, lat2, lon2)
-print('Distancia menor caminho:', distance_shortest_route)
+#distance = distance_between_coordinates(lat1, lon1, lat2, lon2) * 1.2 # coeficiente de segurança
+#print(f'Distancia reta: {round(distance)} Km')
